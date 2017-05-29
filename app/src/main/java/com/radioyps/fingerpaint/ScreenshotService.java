@@ -19,6 +19,7 @@ public class ScreenshotService extends Service {
     private Looper mServiceLooper;
     private ServiceHandler mServiceHandler;
     private Message msg;
+    private static final String url_weather = "http://weather.gc.ca/wxlink/wxlink.html?cityCode=qc-147&amp;lang=e";
 
     private WebView webview;
 
@@ -31,6 +32,8 @@ public class ScreenshotService extends Service {
         public void handleMessage(Message msg) {
 
             webview = new WebView(ScreenshotService.this);
+            WebSettings webSettings = webview.getSettings();
+            webSettings.setJavaScriptEnabled(true);
 
             //without this toast message, screenshot will be blank, dont ask me why...
             Toast.makeText(ScreenshotService.this, "Taking screenshot...", Toast.LENGTH_SHORT).show();
@@ -44,7 +47,7 @@ public class ScreenshotService extends Service {
             webview.layout(0, 0, 600, 400);
 
 
-            webview.loadUrl("http://stackoverflow.com");
+            webview.loadUrl(url_weather);
 
             webview.setWebViewClient(new WebViewClient() {
 
@@ -55,7 +58,8 @@ public class ScreenshotService extends Service {
 
                 @Override
                 public void onPageFinished(WebView view, String url) {
-                    new takeScreenshotTask().execute();
+                    //new takeScreenshotTask().execute();
+                    takeScreeshot();
                     stopSelf();
 
 
@@ -65,6 +69,33 @@ public class ScreenshotService extends Service {
 
         }
     }
+
+    private void takeScreeshot(){
+        synchronized (this) {try {wait(20350);} catch (InterruptedException e) {}}
+
+        //here I save the bitmap to file
+        Bitmap b = webview.getDrawingCache();
+
+        //File file = new File("example-screenshot.png");
+        File file = new File(ScreenshotService.this.getExternalFilesDir(
+                Environment.DIRECTORY_PICTURES), "example-screenshot.png");
+        OutputStream out;
+
+
+        try {
+            out = new BufferedOutputStream(new FileOutputStream(file));
+            b.compress(Bitmap.CompressFormat.PNG, 100, out);
+            out.close();
+
+        } catch (IOException e) {
+            Log.e("ScreenshotService", "IOException while trying to save thumbnail, Is /sdcard/ writable?");
+
+            e.printStackTrace();
+        }
+
+        Toast.makeText(ScreenshotService.this, "Screenshot taken", Toast.LENGTH_SHORT).show();
+    }
+
 
     private class takeScreenshotTask extends AsyncTask<Void, Void, Void> {
 
@@ -77,7 +108,9 @@ public class ScreenshotService extends Service {
             //here I save the bitmap to file
             Bitmap b = webview.getDrawingCache();
 
-            File file = new File("/sdcard/example-screenshot.png");
+            //File file = new File("example-screenshot.png");
+            File file = new File(ScreenshotService.this.getExternalFilesDir(
+                    Environment.DIRECTORY_PICTURES), "example-screenshot.png");
             OutputStream out;
 
 

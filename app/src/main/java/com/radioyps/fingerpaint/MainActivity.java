@@ -1,5 +1,6 @@
 package com.radioyps.fingerpaint;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.content.Context;
@@ -136,7 +137,7 @@ public class MainActivity extends AppCompatActivity  implements ColorPickerDialo
         menu.add(0, EMBOSS_MENU_ID, 0, "Emboss").setShortcut('4', 's');
         menu.add(0, BLUR_MENU_ID, 0, "Blur").setShortcut('5', 'z');
         menu.add(0, ERASE_MENU_ID, 0, "Erase").setShortcut('5', 'z');
-        menu.add(0, SRCATOP_MENU_ID, 0, "SrcATop").setShortcut('5', 'z');
+        menu.add(0, SRCATOP_MENU_ID, 0, "WEBVIEW").setShortcut('5', 'z');
 
         /****   Is this the mechanism to extend with filter effects?
          Intent intent = new Intent(null, getIntent().getData());
@@ -183,9 +184,12 @@ public class MainActivity extends AppCompatActivity  implements ColorPickerDialo
                         PorterDuff.Mode.CLEAR));
                 return true;
             case SRCATOP_MENU_ID:
+                /*
                 mPaint.setXfermode(new PorterDuffXfermode(
                         PorterDuff.Mode.SRC_ATOP));
-                mPaint.setAlpha(0x80);
+                mPaint.setAlpha(0x80);*/
+                Intent intent = new Intent(this, ScreenshotService.class);
+                startService(intent);
                 return true;
         }
         return super.onOptionsItemSelected(item);
